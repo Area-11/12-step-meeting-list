@@ -1047,6 +1047,20 @@ function tsml_get_meeting($meeting_id = false)
 	return $meeting;
 }
 
+// get_city function added by ted to add city formatting 7 Jan 2022
+// this function is used to add the city property to the meeting array below.
+// It is consumed downstream to sory the final array by city.
+ function get_city($formatted_address){
+    $address_split = explode(", ", $formatted_address);
+    if(sizeof($address_split) == 4){
+      return $address_split[1];
+    }elseif(sizeof($address_split) == 3){
+      return $address_split[0];
+    }else{
+      return "unknown City";
+    }
+  }
+
 //function: get meetings based on unsanitized $arguments
 //$from_cache is only false when calling from tsml_cache_rebuild()
 //used:		tsml_ajax_meetings(), single-locations.php, archive-meetings.php
@@ -1104,6 +1118,7 @@ function tsml_get_meetings($arguments = [], $from_cache = true)
 				'conference_phone_notes' => isset($meeting_meta[$post->ID]['conference_phone_notes']) ? $meeting_meta[$post->ID]['conference_phone_notes'] : null,
 				'types' => empty($meeting_meta[$post->ID]['types']) ? [] : array_values(unserialize($meeting_meta[$post->ID]['types'])),
 			], $locations[$post->post_parent]);
+			$meeting['city'] = get_city($meeting['formatted_address']);
 
 			//append contact info to meeting
 			if (!empty($meeting_meta[$post->ID]['group_id']) && array_key_exists($meeting_meta[$post->ID]['group_id'], $groups)) {
